@@ -1,15 +1,19 @@
 # crawling-hacker-news-page
 
-## :four_leaf_clover: Ubuntu
+## :four_leaf_clover: Run by Docker:
+`./run-by-docker.sh`
+
+## :four_leaf_clover: Run by Ubuntu:
+#### 1. Init ven
 `./init-ven.sh`<br>
 `. ./python.sh`
 
-## :four_leaf_clover: Install libraries
+#### 2 Install libraries
 `./app/init-libs.sh `
 
-## :four_leaf_clover: Check version of libraries
+#### 3 Check version of libraries
 `cd app/src/`<br>
 `python test_libs.py`
 
-## :four_leaf_clover: Run project
+#### 4 Run project
 `python main.py`

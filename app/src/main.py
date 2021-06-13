@@ -7,6 +7,7 @@ from models import Article
 
 start = timeit.default_timer()
 
+
 def clone_page(requests, page):
     print("Cloning page {page}...".format(page=page))
     URL = 'https://news.ycombinator.com/news?p={page}'.format(page=page)
@@ -67,7 +68,6 @@ for i in range(len(list_td_tags)):
 soup_tags_other = BeautifulSoup(tr_tags_other, 'html.parser')
 list_td_tags = soup_tags_other.find_all("td", "subtext")
 index_article = 0
-
 for td_tag in list_td_tags:
     span_tag = td_tag.span
     points = ""
@@ -126,4 +126,6 @@ with open('beautifulSoup4.txt', 'w') as outfile:
 
 
 stop = timeit.default_timer()
-print('Compiling time: ', stop - start)
+f = open("compiling-time.txt", "w")
+f.write('Compiling time: {time}'.format(time=stop - start))
+f.close
