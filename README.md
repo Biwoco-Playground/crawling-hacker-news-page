@@ -1,14 +1,8 @@
 # crawling-hacker-news-page
 
-## :four_leaf_clover: Window
-`py -3 -m venv .venv`<br>
-`.venv\scripts\activate`
-
 ## :four_leaf_clover: Ubuntu
 `./init-ven.sh`<br>
 `. ./python.sh`
-
-## :four_leaf_clover: Now you could use `python` to alter `py` or `python3` command
 
 ## :four_leaf_clover: Install libraries
 `./app/init-libs.sh `

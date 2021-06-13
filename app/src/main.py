@@ -1,27 +1,34 @@
 import requests
 import json
+import timeit
 
 from bs4 import BeautifulSoup
 from models import Article
 
-min_page = 1
-max_page = 20
-html_doc = ""
+start = timeit.default_timer()
 
-for page in range(min_page, max_page):
+def clone_page(requests, page):
     print("Cloning page {page}...".format(page=page))
     URL = 'https://news.ycombinator.com/news?p={page}'.format(page=page)
     response = requests.get(URL)
+    return response
+
+
+page = 1
+response = clone_page(requests, page)
+html_doc = str(response.text)
+while "class=\"morelink\"" in str(response.text):
+    page += 1
+    response = clone_page(requests, page)
     html_doc += str(response.text)
 
-main_soup = BeautifulSoup(html_doc, 'html.parser')
 
+main_soup = BeautifulSoup(html_doc, 'html.parser')
 list_articles = []
 tr_tags_id = ""
 tr_tags_other = ""
-
-list_tr_tags = main_soup.body.find_all("tr")
-for i in range(2, len(list_tr_tags)-3):
+list_tr_tags = main_soup.find_all("tr")
+for i in range(len(list_tr_tags)):
     tag_tr = list_tr_tags[i]
     flag = "id=\"pagespace\"" not in str(tag_tr) and "class=\"spacer\"" not in str(
         tag_tr) and "class=\"morespace\"" not in str(tag_tr)
@@ -35,8 +42,8 @@ for i in range(2, len(list_tr_tags)-3):
         else:
             tr_tags_other += str(tag_tr)
 
-soup_tags_id = BeautifulSoup(tr_tags_id, 'html.parser')
 
+soup_tags_id = BeautifulSoup(tr_tags_id, 'html.parser')
 list_td_tags = soup_tags_id.find_all("td", "title")
 index_article = 0
 for i in range(len(list_td_tags)):
@@ -56,10 +63,11 @@ for i in range(len(list_td_tags)):
         list_articles[index_article].content_url = content_url
         index_article += 1
 
-soup_tags_other = BeautifulSoup(tr_tags_other, 'html.parser')
 
+soup_tags_other = BeautifulSoup(tr_tags_other, 'html.parser')
 list_td_tags = soup_tags_other.find_all("td", "subtext")
 index_article = 0
+
 for td_tag in list_td_tags:
     span_tag = td_tag.span
     points = ""
@@ -111,7 +119,11 @@ for td_tag in list_td_tags:
 
     index_article += 1
 
-json_articles = json.dumps(
-    [article.__dict__ for article in list_articles], indent=4)
 
-print(json_articles)
+with open('beautifulSoup4.txt', 'w') as outfile:
+    json_articles = json.dump(
+        [article.__dict__ for article in list_articles], outfile, indent=4)
+
+
+stop = timeit.default_timer()
+print('Compiling time: ', stop - start)
