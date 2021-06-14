@@ -2,6 +2,7 @@
 app/src/beautifulSoup4.txt
 app/src/compiling-time.txt
 results/
+python-convention/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -4,16 +4,10 @@ import timeit
 
 from bs4 import BeautifulSoup
 from models import Article
-
+from utils import convert_ago_to_date, clone_page
+    
+    
 start = timeit.default_timer()
-
-
-def clone_page(requests, page):
-    print("Cloning page {page}...".format(page=page))
-    URL = 'https://news.ycombinator.com/news?p={page}'.format(page=page)
-    response = requests.get(URL)
-    return response
-
 
 page = 1
 response = clone_page(requests, page)
@@ -31,9 +25,9 @@ tr_tags_other = ""
 list_tr_tags = main_soup.find_all("tr")
 for i in range(len(list_tr_tags)):
     tag_tr = list_tr_tags[i]
-    flag = "id=\"pagespace\"" not in str(tag_tr) and "class=\"spacer\"" not in str(
-        tag_tr) and "class=\"morespace\"" not in str(tag_tr)
-    if flag:
+    if ("id=\"pagespace\"" not in str(tag_tr) 
+            and "class=\"spacer\"" not in str(tag_tr) 
+            and "class=\"morespace\"" not in str(tag_tr)):
         id = tag_tr.get('id')
         if id is not None:
             tr_tags_id += str(tag_tr)
@@ -48,17 +42,15 @@ soup_tags_id = BeautifulSoup(tr_tags_id, 'html.parser')
 list_td_tags = soup_tags_id.find_all("td", "title")
 index_article = 0
 for i in range(len(list_td_tags)):
-    flag = "align=\"right\"" not in str(list_td_tags[i])
-    if flag:
+    if "align=\"right\"" not in str(list_td_tags[i]):
         td_tag = list_td_tags[i]
         title = td_tag.a.string
-
         content_url = ""
         try:
             content_url = td_tag.span.a.string
         except:
-            print("Article {index_article} has not content url".format(
-                index_article=index_article+1))
+            print("Article {index_article} has not content url"
+                    .format(index_article = index_article + 1))
 
         list_articles[index_article].title = title
         list_articles[index_article].content_url = content_url
@@ -81,23 +73,23 @@ for td_tag in list_td_tags:
     if "flag:" not in points:
         author = a_tag.string
     else:
-        print("Article {index_article} has not author".format(
-            index_article=index_article+1))
+        print("Article {index_article} has not author"
+                .format(index_article = index_article + 1))
 
-    next_span = span_tag.find_next_siblings("span")
+    next_span = span_tag.find_next_siblings("span")    
     created_date = ""
-    try:
+    if len(next_span) > 0:
         created_date = next_span[0].string
-    except:
+    else:
         created_date = points.replace("flag:", "")
 
-    points = str(points)
     if "points" in points:
         points = points.replace("points", "").strip()
         points = int(points)
     elif "ago" in points:
         created_date = points
         points = 0
+    created_date = convert_ago_to_date(created_date).isoformat()
 
     next_a = a_tag.find_next_siblings("a")
     number_comments = ""
@@ -106,26 +98,25 @@ for td_tag in list_td_tags:
         if number_comments == "discuss":
             number_comments = 0
         else:
-            number_comments = int(
-                number_comments.replace("comments", "").strip())
+            number_comments = number_comments.replace("comments", "").strip()
+            number_comments = int(number_comments)
     except:
-        print("Article {index_article} has not comments".format(
-            index_article=index_article+1))
+        print("Article {index_article} has not comments"
+                .format(index_article = index_article + 1))
 
     list_articles[index_article].points = points
     list_articles[index_article].author = author
     list_articles[index_article].created_date = created_date
     list_articles[index_article].number_comments = number_comments
-
     index_article += 1
 
 
 with open('beautifulSoup4.txt', 'w') as outfile:
     json_articles = json.dump(
-        [article.__dict__ for article in list_articles], outfile, indent=4)
+                            [article.__dict__ for article in list_articles], outfile, 
+                            indent=4)
 
 
 stop = timeit.default_timer()
-f = open("compiling-time.txt", "w")
-f.write('Compiling time: {time}'.format(time=stop - start))
-f.close
+with open('compiling-time.txt', 'w') as outfile:
+    outfile.write('Compiling time: {time}'.format(time=stop - start))
