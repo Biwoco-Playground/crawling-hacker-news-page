@@ -1,4 +1,3 @@
-from datetime import datetime
 
 
 class Article:
@@ -6,7 +5,7 @@ class Article:
     title = ""
     content_url = ""
     points = 0
-    created_date = datetime.now().isoformat()
+    created_date = ""
     author = ""
     number_comments = 0
 

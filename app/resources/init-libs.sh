@@ -11,5 +11,8 @@ python -m pip install requests
 # beautifulsoup4
 python -m pip install beautifulsoup4
 
+# lxml
+python -m pip install lxml
+
 # scrapy
 # python -m pip install scrapy

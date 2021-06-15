@@ -1,6 +1,8 @@
+from os import write
 import requests
 import json
 import timeit
+import re
 
 from bs4 import BeautifulSoup
 from models import Article
@@ -23,99 +25,68 @@ html_doc = str(response.text)
 
 start = timeit.default_timer()
 
-main_soup = BeautifulSoup(html_doc, 'html.parser')
-list_articles = []
-tr_tags_id = ""
-tr_tags_other = ""
-list_tr_tags = main_soup.find_all("tr")
-for tr_tag in list_tr_tags:
-    str_tr_tag = str(tr_tag)
-    if ("id=\"pagespace\"" not in str_tr_tag
-            and "class=\"spacer\"" not in str_tr_tag
-            and "class=\"morespace\"" not in str_tr_tag):
-        id = tr_tag.get('id')
-        if id is not None:
-            tr_tags_id += str_tr_tag
-            new_article = Article()
-            new_article.id = id
-            list_articles.append(new_article)
-        else:
-            tr_tags_other += str_tr_tag
+main_soup = BeautifulSoup(html_doc, 'lxml')
 
+articles = []
+for tr_tag in main_soup.select('tr[id]'):
+    id = tr_tag.get('id')
+    if id != "pagespace":
+        newArticle = Article()
+        newArticle.id = id
+        articles.append(newArticle) 
 
-soup_tags_id = BeautifulSoup(tr_tags_id, 'html.parser')
-list_td_tags = soup_tags_id.find_all("td", "title")
+td_tags = main_soup.find_all("td", attrs={'class' : ["title", "subtext"]})
 index_article = 0
-for td_tag in list_td_tags:
-    if "align=\"right\"" not in str(td_tag):
-        title = td_tag.a.string
-        content_url = ""
-        try:
-            content_url = td_tag.span.a.string
-        except:
-            print("Article {index_article} has not content url"
-                    .format(index_article = index_article + 1))
-
-        list_articles[index_article].title = title
-        list_articles[index_article].content_url = content_url
-        index_article += 1
-
-
-soup_tags_other = BeautifulSoup(tr_tags_other, 'html.parser')
-list_td_tags = soup_tags_other.find_all("td", "subtext")
-index_article = 0
-for td_tag in list_td_tags:
-    span_tag = td_tag.span
-    points = ""
-    if "class=\"score\"" in str(span_tag):
-        points = span_tag.string
+for td_tag in td_tags:
+    str_td_tag = str(td_tag)
+    if ("align=\"right\"" in str_td_tag
+        or "class=\"morelink\"" in str_td_tag):      
+        continue
     else:
-        points = "flag:"+span_tag.string
+        if "class=\"title\"" in str_td_tag:
+            title = td_tag.a.string
+            content_url = td_tag.a.get("href")
 
-    a_tag = td_tag.a
-    author = ""
-    if "flag:" not in points:
-        author = a_tag.string
-    else:
-        print("Article {index_article} has not author"
-                .format(index_article = index_article + 1))
+            articles[index_article].title = title
+            articles[index_article].content_url = content_url
 
-    next_span = span_tag.find_next_siblings("span")    
-    created_date = ""
-    if len(next_span) > 0:
-        created_date = next_span[0].string
-    else:
-        created_date = points.replace("flag:", "")
+        elif "class=\"subtext\"" in str_td_tag:
+            span_tag = td_tag.span
 
-    if "points" in points:
-        points = points.replace("points", "").strip()
-        points = int(points)
-    elif "ago" in points:
-        created_date = points
-        points = 0
-    created_date = convert_ago_to_date(created_date).isoformat()
+            points = 0
+            author = "" 
+            created_date = ""
+            number_comments = 0
+            if span_tag.get("class")[0] == "score":
+                points = int(
+                            span_tag.string.replace("points", "").strip())
 
-    next_a = a_tag.find_next_siblings("a")
-    number_comments = "0"
-    try:
-        extracting_comments = str(next_a[1].string)
-        if extracting_comments != "discuss":
-            number_comments = extracting_comments.replace("comments", "").strip()
-    except:
-        print("Article {index_article} has not comments"
-                .format(index_article = index_article + 1))
-    number_comments = int(number_comments)
+                a_tag = td_tag.a
+                author = a_tag.string
 
-    list_articles[index_article].points = points
-    list_articles[index_article].author = author
-    list_articles[index_article].created_date = created_date
-    list_articles[index_article].number_comments = number_comments
-    index_article += 1
+                next_span = span_tag.find_next_siblings("span")
+                created_date = convert_ago_to_date(next_span[0].string)
+
+                next_a = a_tag.find_next_siblings("a")                
+                extracting_comments = next_a[1].string
+                if extracting_comments != "discuss":
+                    number_comments = int(
+                                        re.sub(
+                                            "comments|comment", "", 
+                                            extracting_comments))
+            else:
+                created_date = convert_ago_to_date(span_tag.string)
+
+            articles[index_article].points = points
+            articles[index_article].author = author
+            articles[index_article].created_date = created_date.isoformat()
+            articles[index_article].number_comments = number_comments
+            index_article += 1
 
 
 with open('result.txt', 'w') as outfile:
     json_articles = json.dump(
-                            [article.__dict__ for article in list_articles], outfile, 
+                            [article.__dict__ for article in articles], outfile, 
                             indent=4)
 
 

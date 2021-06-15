@@ -3,6 +3,7 @@ result.txt
 compiling-time.txt
 results/
 python-convention/
+td.html
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
