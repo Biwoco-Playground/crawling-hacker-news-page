@@ -9,7 +9,7 @@
 `. ./python.sh`
 
 #### 2 Install libraries
-`./app/init-libs.sh `
+`./app/resources/init-libs.sh `
 
 #### 3 Check version of libraries
 `cd app/src/`<br>

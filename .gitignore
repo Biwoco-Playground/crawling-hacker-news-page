@@ -1,6 +1,6 @@
 # compile files
-app/src/beautifulSoup4.txt
-app/src/compiling-time.txt
+result.txt
+compiling-time.txt
 results/
 python-convention/
 

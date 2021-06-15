@@ -6,44 +6,48 @@ from bs4 import BeautifulSoup
 from models import Article
 from utils import convert_ago_to_date, clone_page
     
-    
-start = timeit.default_timer()
 
 page = 1
-response = clone_page(requests, page)
+url = "https://news.ycombinator.com/news"
+s = requests.Session()
+response = clone_page(
+                    s, url, 
+                    page)
 html_doc = str(response.text)
-while "class=\"morelink\"" in str(response.text):
-    page += 1
-    response = clone_page(requests, page)
-    html_doc += str(response.text)
+# while "class=\"morelink\"" in str(response.text):
+#     page += 1
+#     response = clone_page(
+#                         s, url, 
+#                         page)
+#     html_doc += str(response.text)
 
+start = timeit.default_timer()
 
 main_soup = BeautifulSoup(html_doc, 'html.parser')
 list_articles = []
 tr_tags_id = ""
 tr_tags_other = ""
 list_tr_tags = main_soup.find_all("tr")
-for i in range(len(list_tr_tags)):
-    tag_tr = list_tr_tags[i]
-    if ("id=\"pagespace\"" not in str(tag_tr) 
-            and "class=\"spacer\"" not in str(tag_tr) 
-            and "class=\"morespace\"" not in str(tag_tr)):
-        id = tag_tr.get('id')
+for tr_tag in list_tr_tags:
+    str_tr_tag = str(tr_tag)
+    if ("id=\"pagespace\"" not in str_tr_tag
+            and "class=\"spacer\"" not in str_tr_tag
+            and "class=\"morespace\"" not in str_tr_tag):
+        id = tr_tag.get('id')
         if id is not None:
-            tr_tags_id += str(tag_tr)
+            tr_tags_id += str_tr_tag
             new_article = Article()
             new_article.id = id
             list_articles.append(new_article)
         else:
-            tr_tags_other += str(tag_tr)
+            tr_tags_other += str_tr_tag
 
 
 soup_tags_id = BeautifulSoup(tr_tags_id, 'html.parser')
 list_td_tags = soup_tags_id.find_all("td", "title")
 index_article = 0
-for i in range(len(list_td_tags)):
-    if "align=\"right\"" not in str(list_td_tags[i]):
-        td_tag = list_td_tags[i]
+for td_tag in list_td_tags:
+    if "align=\"right\"" not in str(td_tag):
         title = td_tag.a.string
         content_url = ""
         try:
@@ -92,17 +96,15 @@ for td_tag in list_td_tags:
     created_date = convert_ago_to_date(created_date).isoformat()
 
     next_a = a_tag.find_next_siblings("a")
-    number_comments = ""
+    number_comments = "0"
     try:
-        number_comments = str(next_a[1].string)
-        if number_comments == "discuss":
-            number_comments = 0
-        else:
-            number_comments = number_comments.replace("comments", "").strip()
-            number_comments = int(number_comments)
+        extracting_comments = str(next_a[1].string)
+        if extracting_comments != "discuss":
+            number_comments = extracting_comments.replace("comments", "").strip()
     except:
         print("Article {index_article} has not comments"
                 .format(index_article = index_article + 1))
+    number_comments = int(number_comments)
 
     list_articles[index_article].points = points
     list_articles[index_article].author = author
@@ -111,7 +113,7 @@ for td_tag in list_td_tags:
     index_article += 1
 
 
-with open('beautifulSoup4.txt', 'w') as outfile:
+with open('result.txt', 'w') as outfile:
     json_articles = json.dump(
                             [article.__dict__ for article in list_articles], outfile, 
                             indent=4)

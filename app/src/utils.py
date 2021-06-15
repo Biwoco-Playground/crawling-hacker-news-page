@@ -4,10 +4,17 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
-def clone_page(requests, page):
-    print("Cloning page {page}...".format(page=page))
-    URL = "https://news.ycombinator.com/news?p={page}".format(page=page)
-    response = requests.get(URL)
+def clone_page(
+            requests, url, 
+            page):
+    print("Cloning page {page}...".format(page = page))
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64)'
+                +' AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'}
+    payload = {'p' : page}
+    response = requests.get(
+                        url, params = payload, 
+                        headers=headers)
+    print(response)
     return response
 
 
