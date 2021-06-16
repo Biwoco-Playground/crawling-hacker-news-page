@@ -9,6 +9,9 @@ class Article:
     author = ""
     number_comments = 0
 
+    def __init__(self, id):
+        self.id = id
+
     def __str__(self):
         return (
             "id:{0}\ntitle:{1}\ncontent_url:{2}\npoints:{3}\n"

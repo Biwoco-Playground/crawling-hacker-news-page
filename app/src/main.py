@@ -1,39 +1,37 @@
-from os import write
-import requests
 import json
-import timeit
-import re
 
+from timeit import default_timer
+from re import sub
+from shutil import rmtree
+from os import makedirs, path
 from bs4 import BeautifulSoup
 from models import Article
 from utils import convert_ago_to_date, clone_page
     
 
+start = default_timer()
+
 page = 1
 url = "https://news.ycombinator.com/news"
-s = requests.Session()
-response = clone_page(
-                    s, url, 
-                    page)
-html_doc = str(response.text)
-# while "class=\"morelink\"" in str(response.text):
-#     page += 1
-#     response = clone_page(
-#                         s, url, 
-#                         page)
-#     html_doc += str(response.text)
+response = clone_page(url, page)
+html_doc = ""
+res_text = response.text
+while "class=\"morelink\"" in res_text:
+    html_doc += res_text
+    page += 1
+    response = clone_page(url, page)
+    res_text = response.text
 
-start = timeit.default_timer()
 
-main_soup = BeautifulSoup(html_doc, 'lxml')
+main_soup = BeautifulSoup(html_doc, 'html.parser')
 
 articles = []
+articles_append = articles.append
 for tr_tag in main_soup.select('tr[id]'):
     id = tr_tag.get('id')
     if id != "pagespace":
-        newArticle = Article()
-        newArticle.id = id
-        articles.append(newArticle) 
+        newArticle = Article(id)
+        articles_append(newArticle) 
 
 td_tags = main_soup.find_all("td", attrs={'class' : ["title", "subtext"]})
 index_article = 0
@@ -71,7 +69,7 @@ for td_tag in td_tags:
                 extracting_comments = next_a[1].string
                 if extracting_comments != "discuss":
                     number_comments = int(
-                                        re.sub(
+                                        sub(
                                             "comments|comment", "", 
                                             extracting_comments))
             else:
@@ -79,17 +77,22 @@ for td_tag in td_tags:
 
             articles[index_article].points = points
             articles[index_article].author = author
-            articles[index_article].created_date = created_date.isoformat()
+            articles[index_article].created_date = created_date
             articles[index_article].number_comments = number_comments
             index_article += 1
 
 
-with open('result.txt', 'w') as outfile:
+stop = default_timer()
+
+dir = 'results'
+if path.exists(dir):
+    rmtree(dir)
+makedirs(dir)
+
+with open('results/result.txt', 'w') as result, \
+        open('results/compiling_time.txt', 'w') as compiling_time:
     json_articles = json.dump(
-                            [article.__dict__ for article in articles], outfile, 
-                            indent=4)
+                            [article.__dict__ for article in articles], result, 
+                            indent = 4)
 
-
-stop = timeit.default_timer()
-with open('compiling-time.txt', 'w') as outfile:
-    outfile.write('Compiling time: {time}'.format(time=stop - start))
+    compiling_time.write('Compiling time: {time}'.format(time = stop - start))
