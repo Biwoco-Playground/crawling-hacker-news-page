@@ -6,32 +6,25 @@ from shutil import rmtree
 from os import makedirs, path
 from bs4 import BeautifulSoup
 from models import Article
-from utils import convert_ago_to_date, clone_page
+from utils import convert_ago_to_date, clone_page, create_article_from_tr_tag
     
 
 start = default_timer()
-
 page = 1
 url = "https://news.ycombinator.com/news"
 response = clone_page(url, page)
-html_doc = ""
-res_text = response.text
-while "class=\"morelink\"" in res_text:
-    html_doc += res_text
-    page += 1
-    response = clone_page(url, page)
-    res_text = response.text
+html_doc = response.text
+# html_doc = ""
+# res_text = response.text
+# while "class=\"morelink\"" in res_text:
+#     html_doc += res_text
+#     page += 1
+#     response = clone_page(url, page)
+#     res_text = response.text
+main_soup = BeautifulSoup(html_doc, 'lxml')
 
-
-main_soup = BeautifulSoup(html_doc, 'html.parser')
-
-articles = []
-articles_append = articles.append
-for tr_tag in main_soup.select('tr[id]'):
-    id = tr_tag.get('id')
-    if id != "pagespace":
-        newArticle = Article(id)
-        articles_append(newArticle) 
+articles = list(
+                map(create_article_from_tr_tag, main_soup.select('tr.athing')))
 
 td_tags = main_soup.find_all("td", attrs={'class' : ["title", "subtext"]})
 index_article = 0

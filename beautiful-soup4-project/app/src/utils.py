@@ -3,7 +3,7 @@ import requests
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-
+from models import Article
 
 ss = requests.Session()
 def clone_page(url, page):
@@ -25,3 +25,6 @@ def convert_ago_to_date(str_ago):
         unit += "s"
     delta = relativedelta(**{unit: int(value)})
     return (datetime.now() - delta).isoformat()
+
+def create_article_from_tr_tag(tr_tag):
+    return Article(tr_tag.get(id))
