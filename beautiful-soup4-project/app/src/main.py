@@ -5,7 +5,6 @@ from re import sub
 from shutil import rmtree
 from os import makedirs, path
 from bs4 import BeautifulSoup
-from models import Article
 from utils import convert_ago_to_date, clone_page, create_article_from_tr_tag
     
 
@@ -50,13 +49,14 @@ for td_tag in td_tags:
             number_comments = 0
             if span_tag.get("class")[0] == "score":
                 points = int(
-                            span_tag.string.replace("points", "").strip())
+                            sub("points|point", "",
+                                span_tag.string))
 
                 a_tag = td_tag.a
                 author = a_tag.string
 
-                next_span = span_tag.find_next_siblings("span")
-                created_date = convert_ago_to_date(next_span[0].string)
+                next_span = span_tag.find_next_sibling("span")
+                created_date = convert_ago_to_date(next_span.string)
 
                 next_a = a_tag.find_next_siblings("a")                
                 extracting_comments = next_a[1].string

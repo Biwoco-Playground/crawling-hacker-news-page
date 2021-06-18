@@ -27,4 +27,4 @@ def convert_ago_to_date(str_ago):
     return (datetime.now() - delta).isoformat()
 
 def create_article_from_tr_tag(tr_tag):
-    return Article(tr_tag.get(id))
+    return Article(tr_tag.get("id"))
