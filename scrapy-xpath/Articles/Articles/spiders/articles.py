@@ -1,7 +1,7 @@
 import scrapy
 
 from Articles.items import ArticlesItem
-from Articles.utils import convert_ago_to_date
+from Articles.utils import convert_ago_to_date, clean_number_comments, clean_points
 
 
 class ArticlesSpider(scrapy.Spider):
@@ -11,6 +11,7 @@ class ArticlesSpider(scrapy.Spider):
 
     def parse(self, response):
         articles = []
+        articles_append = articles.append
         rows = response.xpath("//table[@class='itemlist']/tr")
         i = 0
         for row in rows:
@@ -27,7 +28,7 @@ class ArticlesSpider(scrapy.Spider):
                 item["content_url"] = td_tag.xpath(
                                                 "a[@class='storylink']/@href").extract_first()
 
-                articles.append(item)
+                articles_append(item)
 
             elif ('class="morespace"' not in str_row
                     and 'class="spacer"' not in str_row
@@ -35,19 +36,26 @@ class ArticlesSpider(scrapy.Spider):
                 item = articles[i]
                 td_tag = row.xpath("td[@class='subtext']")
 
-                item["points"] = td_tag.xpath(
-                                            "span[@class='score']/text()").extract_first()
+                points = clean_points(
+                                    td_tag.xpath(
+                                            "span[@class='score']/text()").extract_first())
+                item["points"] = points
 
                 item["created_date"] = convert_ago_to_date(
-                                                td_tag
-                                                    .xpath("span[@class='age']/a/text()")
-                                                        .extract_first())
+                                                        td_tag
+                                                            .xpath("span[@class='age']/a/text()")
+                                                                .extract_first())
 
                 item["author"] = td_tag.xpath(
                                             "a[@class='hnuser']/text()").extract_first()
 
-                item["number_comments"] = td_tag.xpath(
-                                            "span[@class='score']/text()").extract_first()
+                try:
+                    number_comments = clean_number_comments(
+                                                    td_tag.xpath(
+                                                        "a/text()").extract()[2])
+                except:
+                    number_comments = 0                    
+                item["number_comments"] = number_comments
 
                 i += 1
 
