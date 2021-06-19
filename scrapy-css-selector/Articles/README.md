@@ -1,8 +1,5 @@
-# crawling-hacker-news-page
+# Using Scrapy and CSS selector libraries
 
 ## :four_leaf_clover: Run project
-### On Docker:
-`./run-on-docker.sh`
-
 ### On Ubuntu:
 `./run-on-ubuntu.sh`

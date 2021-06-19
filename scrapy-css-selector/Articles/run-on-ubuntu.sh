@@ -11,7 +11,7 @@ cd ..
 # python bash
 . ./python-bash.sh
 
-# scrapy
+# install libraries
 pip install -r requirements.txt
 
 # run project

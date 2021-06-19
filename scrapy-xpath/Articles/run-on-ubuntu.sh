@@ -11,7 +11,7 @@ cd ..
 # python bash
 . ./python-bash.sh
 
-# install requirements
+# install libraries
 pip install -r requirements.txt
 
 # run project
