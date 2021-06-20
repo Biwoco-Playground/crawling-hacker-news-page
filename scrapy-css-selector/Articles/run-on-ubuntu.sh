@@ -16,4 +16,4 @@ pip install -r requirements.txt
 
 # run project
 cd Articles
-scrapy crawl articles -O result.json
+scrapy crawl articles -O articles.json

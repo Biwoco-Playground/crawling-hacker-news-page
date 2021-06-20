@@ -1,7 +1,7 @@
 # compile files
 results/
 td.html
-result.json
+articles.json
 compiling_time.txt
 
 # Byte-compiled / optimized / DLL files

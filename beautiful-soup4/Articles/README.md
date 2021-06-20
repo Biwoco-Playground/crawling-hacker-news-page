@@ -1,4 +1,4 @@
-# Using beautifulSoup4 libraries
+# Using beautifulsoup4, lxml, requests libraries
 
 ## :four_leaf_clover: Run project
 ### On Docker:
