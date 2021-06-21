@@ -6,7 +6,7 @@ from Articles.utils import convert_ago_to_date, clean_number_comments, clean_poi
 
 class ArticlesSpider(scrapy.Spider):
     name = "articles"
-    allowed_domains = ["https://news.ycombinator.com/news"]
+    allowed_domains = ["ycombinator.com"]
     start_urls = ["https://news.ycombinator.com/news"]
 
     def parse(self, response):
@@ -61,3 +61,10 @@ class ArticlesSpider(scrapy.Spider):
 
         for article in articles:
             yield article
+
+        next_page = rows.xpath(
+                                "td[@class='title']/a[@class='morelink']/@href").extract_first()
+        if next_page:
+            next_url = 'https://news.ycombinator.com/' + next_page
+            print("Next Page URL: ", next_url)
+            yield scrapy.Request(next_url, callback = self.parse)
