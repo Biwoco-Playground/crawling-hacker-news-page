@@ -1,8 +1,8 @@
 import re
+import json
 
 from pyquery import PyQuery
 from timeit import default_timer
-from shutil import rmtree
 from os import makedirs, path
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -48,3 +48,9 @@ def calculate_compiling_time(start_time):
         compiling_time.write(
                             'Compiling time: {time}'.format(
                                                             time = stop_time - start_time))
+
+def dump_objects_to_json_file(objects, filename):
+    with open('results/' + filename + '.json', 'w') as result:
+        json.dump(
+                [object.__dict__ for object in objects], result, 
+                indent = 4)

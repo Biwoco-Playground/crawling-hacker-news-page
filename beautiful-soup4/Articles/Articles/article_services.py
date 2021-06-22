@@ -1,5 +1,4 @@
 import requests
-import json
 
 from utils import clone_page, clean_points, convert_ago_to_date, clean_number_comments
 from models import Article
@@ -73,7 +72,4 @@ def parse_hacker_news_pages(start_page, end_page):
 
     map_attrs_to_articles_from_td_tags(articles, td_tags)
 
-    with open('results/articles.json', 'w') as result:
-        json.dump(
-                [article.__dict__ for article in articles], result, 
-                indent = 4)
+    return articles

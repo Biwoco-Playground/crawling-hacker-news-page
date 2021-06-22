@@ -1,8 +1,7 @@
-import json
-
 from models import Article
 from utils import clean_number_comments, clean_points, convert_ago_to_date, clone_page
 from pyquery import PyQuery
+
 
 def create_articles_from_tr_tags(tr_tags):
     articles = []
@@ -53,8 +52,5 @@ def parse_hacker_news_pages(start_page, end_page):
     pages = PyQuery(html_doc)
     tr_tags = pages.find("table.itemlist tr").items()
     articles = create_articles_from_tr_tags(tr_tags)
-
-    with open("results/articles.json", "w") as result:
-        json.dump(
-                [article.__dict__ for article in articles], result, 
-                indent=4)
+    
+    return articles
