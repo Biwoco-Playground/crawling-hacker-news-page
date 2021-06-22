@@ -32,7 +32,7 @@ class ArticlesSpider(scrapy.Spider):
 
             elif ('class="morespace"' not in str_row
                     and 'class="spacer"' not in str_row
-                    and i < 30):
+                    and 'class="title"' not in str_row):
                 item = articles[i]
                 td_tag = row.xpath("td[@class='subtext']")
 

@@ -28,7 +28,7 @@ class ArticlesSpider(scrapy.Spider):
 
             elif ('class="morespace"' not in str_row
                     and 'class="spacer"' not in str_row
-                    and i < 30):
+                    and 'class="title"' not in str_row):
                 item = articles[i]
                 
                 points = clean_points(row.css("span[class='score']::text").extract_first())
