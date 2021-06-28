@@ -1,49 +1,22 @@
-from html.parser import HTMLParser
 
+class Block:
+    content = ""
+    content_length = 0
+    stopwords_density = 0.0
+    link_density = 0.0
+    CLASS = ""
 
-PARAGRAPH_TAGS = [
-    'body', 'blockquote', 'caption', 'center', 'col', 'colgroup', 'dd',
-    'div', 'dl', 'dt', 'fieldset', 'form', 'legend', 'optgroup', 'option',
-    'p', 'pre', 'table', 'td', 'textarea', 'tfoot', 'th', 'thead', 'tr',
-    'ul', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-]
+    def __init__(
+                self, content, 
+                content_length, stopwords_density):
+        self.content = content
+        self.content_length = content_length
+        self.stopwords_density = stopwords_density
 
-
-class BuildingBlocksParser(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.parts = []
-        self.language = ""
-        self.current_tag = ""
-        self.tags = []
-
-
-    def handle_starttag(self, tag, attrs):
-        if tag == "html":
-            for key, value in attrs:
-                if key != "lang":
-                    continue
-                self.language = value
-        self.current_tag = tag
-        if tag in PARAGRAPH_TAGS:
-            self.tags.append(tag)
-            self.parts.append("<" + tag + ">")
-        else:
-            pass
-
-
-    def handle_endtag(self, tag):
-        if tag in PARAGRAPH_TAGS:
-            self.tags.remove(tag)
-            self.parts.append("</" + tag + ">")
-        else:
-            pass
-
-
-    def handle_data(self, data):
-        if (self.current_tag in PARAGRAPH_TAGS
-            or self.tags):
-            self.parts.append(data)
-        else:
-            pass
-        
+    def __str__(self):
+        return (
+            "content:{0}\ncontent_length:{1}\nstopwords_density:{2}\nlink_density:{3}\nCLASS:{4}"
+                                                            .format(
+                                                                    self.content, self.content_length,
+                                                                    self.stopwords_density, self.link_density,
+                                                                    self.CLASS))

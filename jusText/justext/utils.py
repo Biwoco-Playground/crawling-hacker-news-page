@@ -2,8 +2,6 @@ import re
 import os
 
 from timeit import default_timer
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 
 def init_results_dir():
@@ -20,15 +18,6 @@ def clone_page(requests_session, url):
     return response
 
 
-def convert_ago_to_date(str_ago):
-    value, unit = re.search(
-                            r"(\d+) (\w+) ago", str_ago).groups()
-    if not unit.endswith("s"):
-        unit += "s"
-    delta = relativedelta(**{unit: int(value)})
-    return (datetime.now() - delta).isoformat()
-
-
 def calculate_compiling_time(start_time):
     stop_time = default_timer()
     with open('results/compiling_time.txt', 'w') as compiling_time:
@@ -37,8 +26,8 @@ def calculate_compiling_time(start_time):
                                                             time = stop_time - start_time))
 
 
-def dump_txt_file(str_content, filename):
-    with open("results/" + filename + ".html", "w") as f:
+def dump_file(str_content, filename):
+    with open("results/" + filename, "w") as f:
         f.write(str_content)
 
 
