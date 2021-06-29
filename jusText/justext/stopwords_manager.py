@@ -1,10 +1,10 @@
 
 
 
-def map_language(language):
-    if language == None:
+def map_language(language_code):
+    if language_code == None:
         return None
-    return languageMap[language.lower()]
+    return languageMap[language_code.lower()]
 
 
 def get_stoplist(language):
