@@ -1,4 +1,4 @@
-# Using lxml, requests libraries
+# Luhn’s Heuristic Method for text summarization
 
 ## :four_leaf_clover: Run project
 ### On Ubuntu:

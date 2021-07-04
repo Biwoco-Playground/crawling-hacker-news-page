@@ -4,6 +4,7 @@ td.html
 test.html
 articles.json
 compiling_time.txt
+words.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
